@@ -46,26 +46,48 @@ def init_model(args):
 
 
     #TODO: Replace this with whatever you want to use to represent the network; you could use use a tuple of (w1,w2), make a class, etc.
-    model = None
-    raise NotImplementedError #TODO: delete this once you implement this function
+    model = (w1, w2)
+    #raise NotImplementedError #TODO: delete this once you implement this function
     return model
 
 def train_model(model, train_ys, train_xs, dev_ys, dev_xs, args):
     #TODO: Implement training for the given model, respecting args
-    raise NotImplementedError #TODO: delete this once you implement this function
+    #raise NotImplementedError #TODO: delete this once you implement this function
+    W1, W2 = model[0], model[1]
+    iterations = args.iterations
+    lr = args.lr
+    train_size = train_ys.shape[0]
+    print(train_size)
+    for _ in range(iterations):
+        for i in range(train_size):
+            _L1 = 1.0 / (1.0 + np.exp(-(np.dot(train_xs[i].T, W1.T))))
+            L1 = np.append(_L1, [1.0])
+            L2 = 1.0 / (1.0 + np.exp(-(np.dot(L1, W2.T))))
+            L2_d = train_ys[i] - L2
+            L1_d = L2_d * W2 * (L1 * (1.0 - L1))
+            W2 += L2_d * L1 * lr
+            W1 += np.dot(L1_d.T, train_xs[i].T)[:-1, :] * lr
+    model =  (W1, W2)
     return model
 
 def test_accuracy(model, test_ys, test_xs):
     accuracy = 0.0
     #TODO: Implement accuracy computation of given model on the test data
-    raise NotImplementedError #TODO: delete this once you implement this function
+    #raise NotImplementedError #TODO: delete this once you implement this function
+    W1, W2 = model[0], model[1]
+    test_size = test_xs.shape[0]
+    _L1 = 1.0 / (1.0 + np.exp(-(np.dot(test_xs.transpose(0, 2, 1).reshape((test_size, NUM_FEATURES)), W1.T))))
+    L1 = np.concatenate((_L1, np.ones((test_size, 1))), axis=1)
+    L2 = 1.0 / (1.0 + np.exp(-(np.dot(L1, W2.T))))
+    predicted = np.where(L2>0.5, 1, 0)
+    accuracy = np.mean(predicted == test_ys) 
     return accuracy
 
 def extract_weights(model):
-    w1 = None
-    w2 = None
+    w1 = model[0]
+    w2 = model[1]
     #TODO: Extract the two weight matrices from the model and return them (they should be the same type and shape as they were in init_model, but now they have been updated during training)
-    raise NotImplementedError #TODO: delete this once you implement this function
+    #raise NotImplementedError #TODO: delete this once you implement this function
     return w1, w2
 
 def main():
@@ -110,7 +132,9 @@ def main():
     test_ys, test_xs = parse_data(args.test_file)
 
     model = init_model(args)
+
     model = train_model(model, train_ys, train_xs, dev_ys, dev_xs, args)
+
     accuracy = test_accuracy(model, test_ys, test_xs)
     print('Test accuracy: {}'.format(accuracy))
     if args.print_weights:
