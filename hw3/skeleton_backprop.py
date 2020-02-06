@@ -50,6 +50,29 @@ def init_model(args):
     #raise NotImplementedError #TODO: delete this once you implement this function
     return model
 
+
+def train_model(model, train_ys, train_xs, dev_ys, dev_xs, args):
+    #TODO: Implement training for the given model, respecting args
+    #raise NotImplementedError #TODO: delete this once you implement this function
+    W1, W2 = model[0], model[1]
+    iterations = args.iterations
+    lr = args.lr
+    train_size = train_ys.shape[0]
+    train_xs.reshape(train_size, NUM_FEATURES)
+    print(train_size)
+    for _ in range(iterations):
+        for i in range(train_size):
+            _L1 = 1.0 / (1.0 + np.exp(-(np.dot(W1, train_xs[i]))))
+            L1 = np.append(_L1, [1.0])
+            L2 = 1.0 / (1.0 + np.exp(-(np.dot(W2, L1))))
+            L2_d = train_ys[i] - L2
+            L1_d = L2_d * W2 * (L1 * (1.0 - L1))
+            W2 += L2_d * L1 * lr
+            W1 += np.dot(train_xs[i], L1_d).T[:-1, :] * lr
+    model =  (W1, W2)
+    return model
+
+'''
 def train_model(model, train_ys, train_xs, dev_ys, dev_xs, args):
     #TODO: Implement training for the given model, respecting args
     #raise NotImplementedError #TODO: delete this once you implement this function
@@ -69,6 +92,7 @@ def train_model(model, train_ys, train_xs, dev_ys, dev_xs, args):
             W1 += np.dot(L1_d.T, train_xs[i].T)[:-1, :] * lr
     model =  (W1, W2)
     return model
+'''
 
 def test_accuracy(model, test_ys, test_xs):
     accuracy = 0.0

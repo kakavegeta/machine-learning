@@ -1,0 +1,1 @@
+1. Transpose operation does not cost much
