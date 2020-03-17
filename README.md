@@ -1,3 +1,3 @@
 # machine-learning
-Basicly the homework
+Basicly the homework  
 Add some interesing and challenging algorithm implementations~
